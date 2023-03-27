@@ -1,37 +1,31 @@
-import { View, Text, TouchableOpacity } from "react-native";
+import { View, Text, TouchableOpacity, TextInput } from "react-native";
 import { Audio } from 'expo-av';
 import { EvilIcons } from '@expo/vector-icons';
 import { useState, useEffect } from 'react';
 
 import Modal from "../../components/Modal";
+import ColorPicker from "../../components/ColorPicker";
+import InputNumber from "../../components/InputNumber";
 
 import { styles } from "./styles";
 
 interface ModesTimerProps {
     timer: number;
-    backgroundColor: string;
-    colorButton: string;
-    colorText: string;
+    title: string;
 }
 
 const modesApp = {
     pomodoro: {
-        timer: 1 * 60,
-        backgroundColor: '#1E2240',
-        colorButton: '#F47272',
-        colorText: '#FFFFFF'
+        timer: 25 * 60,
+        title: 'POMODORO'
     },
     short_break: {
         timer: 5 * 60,
-        backgroundColor: '#4154e0',
-        colorButton: '#dd3f3f',
-        colorText: '#FFFFFF'
+        title: 'SHORT BREAK'
     },
     long_break: {
         timer: 15 * 60,
-        backgroundColor: '#0c144d',
-        colorButton: '#b42727',
-        colorText: '#FFFFFF'
+        title: 'LONG BREAK'
     },
 }
 
@@ -40,6 +34,12 @@ export default function Home() {
     const [modesTimer, setModesTimer] = useState<ModesTimerProps>(modesApp.pomodoro);
     const [isStarted, setIsStarted] = useState<boolean>(false);
     const [modalOpen, setModalOpen] = useState<boolean>(false);
+
+    const [colorButton, setColorButton] = useState<string>('#F47272');
+
+    const [timerShortBreak, setTimerShortBreak] = useState<number>(modesApp.short_break.timer);
+    const [timerLongBreak, setTimerLongBreak] = useState<number>(modesApp.long_break.timer);
+    const [timerPomodoro, setTimerPomodoro] = useState<number>(modesApp.pomodoro.timer);
 
     const playSound = async () => {
         const { sound } = await Audio.Sound.createAsync(require('../../assets/alert_sound.wav'));
@@ -65,10 +65,8 @@ export default function Home() {
             setTimeout(() => {
                 const newTime = modesTimer.timer - 1;
                 const newObject: ModesTimerProps = {
-                    backgroundColor: modesTimer.backgroundColor,
-                    colorButton: modesTimer.colorButton,
-                    colorText: modesTimer.colorText,
-                    timer: newTime
+                    timer: newTime,
+                    title: modesTimer.title
                 }
                 setModesTimer(newObject);
             }, 1000);
@@ -79,34 +77,55 @@ export default function Home() {
     const seconds = modesTimer.timer % 60;
 
     return (
-        <View style={[styles.container, { backgroundColor: modesTimer.backgroundColor }]}>
+        <View style={styles.container}>
             <View style={styles.contentButtons}>
                 <TouchableOpacity
-                    style={[styles.button, { backgroundColor: modesTimer.colorButton }]}
+                    style={
+                        [styles.button,
+                        {
+                            backgroundColor: colorButton,
+                            borderWidth: modesTimer.title === 'POMODORO' ? 2 : 0,
+                        }
+                        ]
+                    }
                     onPress={() => setModesTimer(modesApp.pomodoro)}
                 >
                     <Text
-                        style={[styles.textButton, { color: modesTimer.colorText }]}
+                        style={styles.textButton}
                     >
                         Pomodoro
                     </Text>
                 </TouchableOpacity>
                 <TouchableOpacity
-                    style={[styles.button, { backgroundColor: modesTimer.colorButton }]}
+                    style={
+                        [styles.button,
+                        {
+                            backgroundColor: colorButton,
+                            borderWidth: modesTimer.title === 'SHORT BREAK' ? 2 : 0,
+                        }
+                        ]
+                    }
                     onPress={() => setModesTimer(modesApp.short_break)}
                 >
                     <Text
-                        style={[styles.textButton, { color: modesTimer.colorText }]}
+                        style={styles.textButton}
                     >
                         Short Break
                     </Text>
                 </TouchableOpacity>
                 <TouchableOpacity
-                    style={[styles.button, { backgroundColor: modesTimer.colorButton }]}
+                    style={
+                        [styles.button,
+                        {
+                            backgroundColor: colorButton,
+                            borderWidth: modesTimer.title === 'LONG BREAK' ? 2 : 0,
+                        }
+                        ]
+                    }
                     onPress={() => setModesTimer(modesApp.long_break)}
                 >
                     <Text
-                        style={[styles.textButton, { color: modesTimer.colorText }]}
+                        style={styles.textButton}
                     >
                         Long Break
                     </Text>
@@ -114,15 +133,15 @@ export default function Home() {
             </View>
 
             <View style={styles.contentTimer}>
-                <Text style={[styles.timer, { color: modesTimer.colorText }]}>
+                <Text style={styles.timer}>
                     {String(minutes).padStart(2, '0')}:{String(seconds).padStart(2, '0')}
                 </Text>
                 <TouchableOpacity
-                    style={[styles.buttonAction, { backgroundColor: modesTimer.colorButton }]}
+                    style={[styles.buttonAction, { backgroundColor: colorButton }]}
                     onPress={handleStartTimer}
                 >
                     <Text
-                        style={[styles.textButtonAction, { color: modesTimer.colorText }]}
+                        style={styles.textButtonAction}
                     >
                         {isStarted ? 'STOP' : 'START'}
                     </Text>
@@ -136,7 +155,46 @@ export default function Home() {
             </View>
 
             <Modal setOpenModal={setModalOpen} visible={modalOpen}>
-                <Text>MODAL</Text>
+                <Text style={styles.modalTitle}>CONFIGURATIONS</Text>
+
+                <View style={styles.contentModal}>
+                    <Text style={styles.modalSubTitle}>TIME (MINUTES)</Text>
+                    <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
+                        <View style={styles.modalTimers}>
+                            <Text style={styles.timerTitle}>Pomodoro</Text>
+                            <InputNumber value={String(timerPomodoro)} setValue={setTimerPomodoro} />
+                        </View>
+                        <View style={styles.modalTimers}>
+                            <Text style={styles.timerTitle}>Short Break</Text>
+                            <InputNumber value={String(timerShortBreak)} setValue={setTimerShortBreak} />
+                        </View>
+                        <View style={styles.modalTimers}>
+                            <Text style={styles.timerTitle}>Long Break</Text>
+                            <InputNumber value={String(timerLongBreak)} setValue={setTimerLongBreak} />
+                        </View>
+                    </View>
+                </View>
+
+                <View style={styles.contentModal}>
+                    <Text style={styles.modalSubTitle}>COLORS</Text>
+                    <View style={styles.contentColors}>
+                        <ColorPicker
+                            color={colorButton}
+                            colorPicker="#F47272"
+                            setColor={setColorButton}
+                        />
+                        <ColorPicker
+                            color={colorButton}
+                            colorPicker="#DA82F9"
+                            setColor={setColorButton}
+                        />
+                        <ColorPicker
+                            color={colorButton}
+                            colorPicker="#73F2F7"
+                            setColor={setColorButton}
+                        />
+                    </View>
+                </View>
             </Modal>
         </View>
     )

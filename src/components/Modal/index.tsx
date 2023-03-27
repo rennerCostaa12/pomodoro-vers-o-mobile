@@ -1,6 +1,6 @@
 import { ReactNode } from "react";
 import { View, Modal as ModalReact, TouchableOpacity } from "react-native";
-import { AntDesign } from '@expo/vector-icons'; 
+import { AntDesign } from '@expo/vector-icons';
 
 import { styles } from "./styles";
 
@@ -13,7 +13,7 @@ interface ModalProps {
 export default function Modal({ children, visible, setOpenModal }: ModalProps) {
     return (
         <ModalReact
-            visible={visible} 
+            visible={visible}
             animationType="slide"
             transparent={true}
             onRequestClose={() => setOpenModal(!visible)}

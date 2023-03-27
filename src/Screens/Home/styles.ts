@@ -4,22 +4,25 @@ export const styles = StyleSheet.create({
     container: {
         flex: 1,
         alignItems: "center",
-        justifyContent: 'center'
+        justifyContent: 'center',
+        backgroundColor: '#1E2240'
     },
     contentButtons: {
         flexDirection: 'row',
         alignItems: 'center',
         justifyContent: 'center',
         marginTop: 30,
-        marginBottom: 30
+        marginBottom: 30,
+        gap: 20
     },
     button: {
         padding: 10,
-        marginLeft: 10,
-        borderRadius: 5
+        borderRadius: 5,
+        borderColor: '#ffffff'
     },
     textButton: {
-        fontSize: 18
+        fontSize: 18,
+        color: '#ffffff'
     },
     contentTimer: {
         alignItems: 'center',
@@ -49,5 +52,32 @@ export const styles = StyleSheet.create({
         position: 'absolute',
         bottom: 0,
         margin: 30,
+    },
+    modalTitle: {
+        fontSize: 25,
+        textAlign: 'center',
+        fontWeight: 'bold'
+    },
+    modalSubTitle: {
+        fontSize: 20,
+        textAlign: 'center'
+    },
+    contentModal: {
+        marginTop: 10,
+        marginBottom: 10,
+    },
+    contentColors: {
+        flexDirection: 'row',
+        justifyContent: 'center',
+        marginTop: 10,
+        marginBottom: 10,
+        gap: 20
+    },
+    modalTimers: {
+        alignItems: 'center',
+        margin: 15
+    },
+    timerTitle: {
+        fontSize: 16,
     }
 })
