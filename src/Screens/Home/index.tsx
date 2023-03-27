@@ -1,4 +1,4 @@
-import { View, Text, TouchableOpacity, TextInput } from "react-native";
+import { View, Text, TouchableOpacity, Image } from "react-native";
 import { Audio } from 'expo-av';
 import { EvilIcons } from '@expo/vector-icons';
 import { useState, useEffect } from 'react';
@@ -34,6 +34,7 @@ export default function Home() {
     const [modesTimer, setModesTimer] = useState<ModesTimerProps>(modesApp.pomodoro);
     const [isStarted, setIsStarted] = useState<boolean>(false);
     const [modalOpen, setModalOpen] = useState<boolean>(false);
+    const [modalRulesApp, setModalRulesApp] = useState<boolean>(false);
 
     const [colorButton, setColorButton] = useState<string>('#F47272');
 
@@ -152,6 +153,10 @@ export default function Home() {
                 <TouchableOpacity onPress={() => setModalOpen(true)}>
                     <EvilIcons name="gear" color={"#ffffff"} size={50} />
                 </TouchableOpacity>
+                
+                <TouchableOpacity onPress={() => setModalRulesApp(true)}>
+                    <Text style={styles.textRules}>RULES</Text>
+                </TouchableOpacity>
             </View>
 
             <Modal setOpenModal={setModalOpen} visible={modalOpen}>
@@ -195,6 +200,16 @@ export default function Home() {
                         />
                     </View>
                 </View>
+            </Modal>
+
+            <Modal 
+                setOpenModal={setModalRulesApp}
+                visible={modalRulesApp}
+            >
+                <Image
+                    source={require('../../assets/rules-pomodoro.webp')}
+                    style={styles.imageRules}
+                />
             </Modal>
         </View>
     )

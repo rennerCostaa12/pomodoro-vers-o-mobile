@@ -11,7 +11,8 @@ export const styles = StyleSheet.create({
         backgroundColor: '#ffffff',
         width: 380,
         height: 350,
-        borderRadius: 5
+        borderRadius: 5,
+        alignItems: 'center'
     },
     buttonClose: {
         alignSelf: 'flex-end',

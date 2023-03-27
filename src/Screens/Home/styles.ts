@@ -52,6 +52,7 @@ export const styles = StyleSheet.create({
         position: 'absolute',
         bottom: 0,
         margin: 30,
+        alignItems: 'center'
     },
     modalTitle: {
         fontSize: 25,
@@ -79,5 +80,15 @@ export const styles = StyleSheet.create({
     },
     timerTitle: {
         fontSize: 16,
+    },
+    textRules: {
+        color: 'gray',
+        fontSize: 25,
+        marginTop: 20,
+    },
+    imageRules:{
+        width: '100%',
+        height: 200,
+        marginTop: 20
     }
 })
