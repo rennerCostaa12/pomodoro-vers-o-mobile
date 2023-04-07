@@ -62,7 +62,15 @@ export default function Home() {
     }
 
     useEffect(() => {
-        if(modesTimer.timer === 0 && modesTimer.title === 'SHORT BREAK'){
+        if (modesTimer.timer === 0 && modesTimer.title === 'LONG BREAK') {
+            playSound();
+            setCurrentIntervalApp(0);
+            setIsStarted(false);
+            setModesTimer(modesApp.pomodoro);
+            return;
+        }
+
+        if (modesTimer.timer === 0 && modesTimer.title === 'SHORT BREAK') {
             playSound();
             setIsStarted(false);
             setModesTimer(modesApp.pomodoro);
@@ -85,9 +93,15 @@ export default function Home() {
                     title: modesTimer.title
                 }
                 setModesTimer(newObject);
-            }, 10);
+            }, 1000);
         }
     }, [modesTimer, isStarted]);
+
+    useEffect(() => {
+        if (currentInterval === intervalApp) {
+            setModesTimer(modesApp.long_break);
+        }
+    }, [currentInterval])
 
     useEffect(() => {
         getColorApp();
@@ -176,7 +190,7 @@ export default function Home() {
                 <TouchableOpacity onPress={() => setModalOpen(true)}>
                     <EvilIcons name="gear" color={"#ffffff"} size={50} />
                 </TouchableOpacity>
-                
+
                 <TouchableOpacity onPress={() => setModalRulesApp(true)}>
                     <Text style={styles.textRules}>RULES</Text>
                 </TouchableOpacity>
@@ -225,7 +239,7 @@ export default function Home() {
                 </View>
             </Modal>
 
-            <Modal 
+            <Modal
                 setOpenModal={setModalRulesApp}
                 visible={modalRulesApp}
             >
