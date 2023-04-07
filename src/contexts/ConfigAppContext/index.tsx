@@ -7,7 +7,6 @@ interface ConfigAppContextProviderProps {
 }
 
 interface ConfigAppContextProps{
-    setColorApp: (data: string) => void;
     getColorApp: () => void;
     colorConfigApp: string;
     setColorConfigApp: React.Dispatch<React.SetStateAction<string>>;
@@ -35,7 +34,7 @@ export const ConfigAppContextProvider = ({ children }: ConfigAppContextProviderP
     }, [colorConfigApp]);
 
     return (
-        <ConfigAppContext.Provider value={{ getColorApp, setColorApp, colorConfigApp, setColorConfigApp }}>
+        <ConfigAppContext.Provider value={{ getColorApp, colorConfigApp, setColorConfigApp }}>
             {children}
         </ConfigAppContext.Provider>
     )

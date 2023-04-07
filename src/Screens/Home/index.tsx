@@ -7,7 +7,7 @@ import Modal from "../../components/Modal";
 import ColorPicker from "../../components/ColorPicker";
 import InputNumber from "../../components/InputNumber";
 
-import { useConfigApp } from "../../contexts/ConfigAppColorContext";
+import { useConfigApp } from "../../contexts/ConfigAppContext";
 
 import { styles } from "./styles";
 
@@ -58,6 +58,14 @@ export default function Home() {
             setIsStarted(true);
         } else {
             setIsStarted(false);
+        }
+    }
+
+    const handleSetModeTime = (timerSelected: ModesTimerProps) => {
+        if(isStarted){
+            alert('Não é possível alterar o cronometro com tempo em andamento');
+        }else{
+            setModesTimer(timerSelected);
         }
     }
 
@@ -122,7 +130,7 @@ export default function Home() {
                         }
                         ]
                     }
-                    onPress={() => setModesTimer(modesApp.pomodoro)}
+                    onPress={() => handleSetModeTime(modesApp.pomodoro)}
                 >
                     <Text
                         style={styles.textButton}
@@ -139,7 +147,7 @@ export default function Home() {
                         }
                         ]
                     }
-                    onPress={() => setModesTimer(modesApp.short_break)}
+                    onPress={() => handleSetModeTime(modesApp.short_break)}
                 >
                     <Text
                         style={styles.textButton}
@@ -156,7 +164,7 @@ export default function Home() {
                         }
                         ]
                     }
-                    onPress={() => setModesTimer(modesApp.long_break)}
+                    onPress={() => handleSetModeTime(modesApp.long_break)}
                 >
                     <Text
                         style={styles.textButton}
