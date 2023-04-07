@@ -7,6 +7,8 @@ import Modal from "../../components/Modal";
 import ColorPicker from "../../components/ColorPicker";
 import InputNumber from "../../components/InputNumber";
 
+import { useConfigApp } from "../../contexts/ConfigAppColorContext";
+
 import { styles } from "./styles";
 
 interface ModesTimerProps {
@@ -29,6 +31,8 @@ const modesApp = {
     },
 }
 
+let intervalApp = 4;
+
 export default function Home() {
 
     const [modesTimer, setModesTimer] = useState<ModesTimerProps>(modesApp.pomodoro);
@@ -36,11 +40,13 @@ export default function Home() {
     const [modalOpen, setModalOpen] = useState<boolean>(false);
     const [modalRulesApp, setModalRulesApp] = useState<boolean>(false);
 
-    const [colorButton, setColorButton] = useState<string>('#F47272');
-
     const [timerShortBreak, setTimerShortBreak] = useState<number>(modesApp.short_break.timer);
     const [timerLongBreak, setTimerLongBreak] = useState<number>(modesApp.long_break.timer);
     const [timerPomodoro, setTimerPomodoro] = useState<number>(modesApp.pomodoro.timer);
+
+    const [currentInterval, setCurrentIntervalApp] = useState<number>(0);
+
+    const { colorConfigApp, getColorApp, setColorConfigApp } = useConfigApp();
 
     const playSound = async () => {
         const { sound } = await Audio.Sound.createAsync(require('../../assets/alert_sound.wav'));
@@ -56,9 +62,18 @@ export default function Home() {
     }
 
     useEffect(() => {
-        if (modesTimer.timer === 0) {
+        if(modesTimer.timer === 0 && modesTimer.title === 'SHORT BREAK'){
             playSound();
             setIsStarted(false);
+            setModesTimer(modesApp.pomodoro);
+            return;
+        }
+
+        if (modesTimer.timer === 0 && modesTimer.title == 'POMODORO') {
+            playSound();
+            setIsStarted(false);
+            setModesTimer(modesApp.short_break);
+            setCurrentIntervalApp((currentValue) => currentValue + 1);
             return;
         }
 
@@ -70,9 +85,13 @@ export default function Home() {
                     title: modesTimer.title
                 }
                 setModesTimer(newObject);
-            }, 1000);
+            }, 10);
         }
     }, [modesTimer, isStarted]);
+
+    useEffect(() => {
+        getColorApp();
+    }, []);
 
     const minutes = Math.floor(modesTimer.timer / 60);
     const seconds = modesTimer.timer % 60;
@@ -84,7 +103,7 @@ export default function Home() {
                     style={
                         [styles.button,
                         {
-                            backgroundColor: colorButton,
+                            backgroundColor: colorConfigApp,
                             borderWidth: modesTimer.title === 'POMODORO' ? 2 : 0,
                         }
                         ]
@@ -101,7 +120,7 @@ export default function Home() {
                     style={
                         [styles.button,
                         {
-                            backgroundColor: colorButton,
+                            backgroundColor: colorConfigApp,
                             borderWidth: modesTimer.title === 'SHORT BREAK' ? 2 : 0,
                         }
                         ]
@@ -118,7 +137,7 @@ export default function Home() {
                     style={
                         [styles.button,
                         {
-                            backgroundColor: colorButton,
+                            backgroundColor: colorConfigApp,
                             borderWidth: modesTimer.title === 'LONG BREAK' ? 2 : 0,
                         }
                         ]
@@ -138,7 +157,7 @@ export default function Home() {
                     {String(minutes).padStart(2, '0')}:{String(seconds).padStart(2, '0')}
                 </Text>
                 <TouchableOpacity
-                    style={[styles.buttonAction, { backgroundColor: colorButton }]}
+                    style={[styles.buttonAction, { backgroundColor: colorConfigApp }]}
                     onPress={handleStartTimer}
                 >
                     <Text
@@ -147,6 +166,10 @@ export default function Home() {
                         {isStarted ? 'STOP' : 'START'}
                     </Text>
                 </TouchableOpacity>
+                <View style={styles.contentInterval}>
+                    <Text style={styles.numberInterval}>{currentInterval} / {intervalApp}</Text>
+                    <Text style={styles.textInterval}>Interval</Text>
+                </View>
             </View>
 
             <View style={styles.footer}>
@@ -184,19 +207,19 @@ export default function Home() {
                     <Text style={styles.modalSubTitle}>COLORS</Text>
                     <View style={styles.contentColors}>
                         <ColorPicker
-                            color={colorButton}
+                            color={colorConfigApp}
                             colorPicker="#F47272"
-                            setColor={setColorButton}
+                            setColor={setColorConfigApp}
                         />
                         <ColorPicker
-                            color={colorButton}
+                            color={colorConfigApp}
                             colorPicker="#DA82F9"
-                            setColor={setColorButton}
+                            setColor={setColorConfigApp}
                         />
                         <ColorPicker
-                            color={colorButton}
+                            color={colorConfigApp}
                             colorPicker="#73F2F7"
-                            setColor={setColorButton}
+                            setColor={setColorConfigApp}
                         />
                     </View>
                 </View>

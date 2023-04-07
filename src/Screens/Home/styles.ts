@@ -48,6 +48,21 @@ export const styles = StyleSheet.create({
         fontSize: 30,
         color: '#ffffff'
     },
+    contentInterval: {
+        alignItems: 'center',
+        marginTop: 10
+    },
+    textInterval: {
+        fontSize: 25,
+        fontWeight: 'bold',
+        color: '#ffffff',
+        textAlign: 'center'
+    },
+    numberInterval: {
+        fontSize: 20,
+        fontWeight: '500',
+        color: '#ffffff'
+    },
     footer: {
         position: 'absolute',
         bottom: 0,

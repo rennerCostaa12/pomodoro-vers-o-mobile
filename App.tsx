@@ -1,12 +1,15 @@
 import { StatusBar } from 'expo-status-bar';
 
 import Routes from './src/Routes';
+import { ConfigAppContextProvider } from './src/contexts/ConfigAppColorContext';
 
 export default function App() {
   return (
     <>
-      <StatusBar style="inverted"  />
-      <Routes />
+      <ConfigAppContextProvider>
+        <StatusBar style="inverted" />
+        <Routes />
+      </ConfigAppContextProvider>
     </>
   );
 }
