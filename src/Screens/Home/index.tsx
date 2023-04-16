@@ -8,6 +8,7 @@ import { Toast, ALERT_TYPE, AlertNotificationRoot } from "react-native-alert-not
 import Modal from "../../components/Modal";
 import ColorPicker from "../../components/ColorPicker";
 import InputNumber from "../../components/InputNumber";
+import Preload from "../../components/Preload";
 
 import { useConfigApp } from "../../contexts/ConfigAppContext";
 import { TypesActionsProps, ConfigAppDefaultProps } from "../../contexts/ConfigAppContext";
@@ -31,6 +32,8 @@ export default function Home() {
     const [isStarted, setIsStarted] = useState<boolean>(false);
     const [modalOpen, setModalOpen] = useState<boolean>(false);
     const [modalRulesApp, setModalRulesApp] = useState<boolean>(false);
+
+    const [loading, setLoading] = useState<boolean>(false);
 
     const [timerShortBreak, setTimerShortBreak] = useState<number>(state.short_break.timer / 60);
     const [timerLongBreak, setTimerLongBreak] = useState<number>(state.long_break.timer / 60);
@@ -141,6 +144,7 @@ export default function Home() {
 
     useEffect(() => {
         const getConfigApp = async () => {
+            setLoading(true);
             try{
                 const responseDatasApp = await AsyncStorage.getItem("@appPomodoro:configApp");
 
@@ -175,6 +179,7 @@ export default function Home() {
             }catch(error){
                 console.log(error);
             }
+            setLoading(false);
         }
 
         getConfigApp();
@@ -186,149 +191,154 @@ export default function Home() {
     return (
         <AlertNotificationRoot>
             <View style={styles.container}>
-                <View style={styles.contentButtons}>
-                    <TouchableOpacity
-                        style={
-                            [styles.button,
-                            {
-                                backgroundColor: state.color_button,
-                                borderWidth: modesTimer.title === 'POMODORO' ? 2 : 0,
-                            }
-                            ]
-                        }
-                        onPress={() => handleSetModeTime(state.pomodoro)}
-                    >
-                        <Text
-                            style={styles.textButton}
-                        >
-                            Pomodoro
-                        </Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                        style={
-                            [styles.button,
-                            {
-                                backgroundColor: state.color_button,
-                                borderWidth: modesTimer.title === 'SHORT BREAK' ? 2 : 0,
-                            }
-                            ]
-                        }
-                        onPress={() => handleSetModeTime(state.short_break)}
-                    >
-                        <Text
-                            style={styles.textButton}
-                        >
-                            Short Break
-                        </Text>
-                    </TouchableOpacity>
-                    <TouchableOpacity
-                        style={
-                            [styles.button,
-                            {
-                                backgroundColor: state.color_button,
-                                borderWidth: modesTimer.title === 'LONG BREAK' ? 2 : 0,
-                            }
-                            ]
-                        }
-                        onPress={() => handleSetModeTime(state.long_break)}
-                    >
-                        <Text
-                            style={styles.textButton}
-                        >
-                            Long Break
-                        </Text>
-                    </TouchableOpacity>
-                </View>
+                {loading && <Preload visible={true} /> }
+                {!loading && (
+                    <>
+                        <View style={styles.contentButtons}>
+                            <TouchableOpacity
+                                style={
+                                    [styles.button,
+                                    {
+                                        backgroundColor: state.color_button,
+                                        borderWidth: modesTimer.title === 'POMODORO' ? 2 : 0,
+                                    }
+                                    ]
+                                }
+                                onPress={() => handleSetModeTime(state.pomodoro)}
+                            >
+                                <Text
+                                    style={styles.textButton}
+                                >
+                                    Pomodoro
+                                </Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                                style={
+                                    [styles.button,
+                                    {
+                                        backgroundColor: state.color_button,
+                                        borderWidth: modesTimer.title === 'SHORT BREAK' ? 2 : 0,
+                                    }
+                                    ]
+                                }
+                                onPress={() => handleSetModeTime(state.short_break)}
+                            >
+                                <Text
+                                    style={styles.textButton}
+                                >
+                                    Short Break
+                                </Text>
+                            </TouchableOpacity>
+                            <TouchableOpacity
+                                style={
+                                    [styles.button,
+                                    {
+                                        backgroundColor: state.color_button,
+                                        borderWidth: modesTimer.title === 'LONG BREAK' ? 2 : 0,
+                                    }
+                                    ]
+                                }
+                                onPress={() => handleSetModeTime(state.long_break)}
+                            >
+                                <Text
+                                    style={styles.textButton}
+                                >
+                                    Long Break
+                                </Text>
+                            </TouchableOpacity>
+                        </View>
 
-                <View style={styles.contentTimer}>
-                    <Text style={styles.timer}>
-                        {String(minutes).padStart(2, '0')}:{String(seconds).padStart(2, '0')}
-                    </Text>
-                    <TouchableOpacity
-                        style={[styles.buttonAction, { backgroundColor: state.color_button }]}
-                        onPress={handleStartTimer}
-                    >
-                        <Text
-                            style={styles.textButtonAction}
-                        >
-                            {isStarted ? 'STOP' : 'START'}
-                        </Text>
-                    </TouchableOpacity>
-                    <View style={styles.contentInterval}>
-                        <Text style={styles.numberInterval}>{currentInterval} / {intervalApp}</Text>
-                        <Text style={styles.textInterval}>Interval</Text>
-                    </View>
-                </View>
-
-                <View style={styles.footer}>
-                    <TouchableOpacity onPress={() => setModalOpen(true)}>
-                        <EvilIcons name="gear" color={"#ffffff"} size={50} />
-                    </TouchableOpacity>
-
-                    <TouchableOpacity onPress={() => setModalRulesApp(true)}>
-                        <Text style={styles.textRules}>RULES</Text>
-                    </TouchableOpacity>
-                </View>
-
-                <Modal setOpenModal={setModalOpen} visible={modalOpen}>
-                    <Text style={styles.modalTitle}>CONFIGURATIONS</Text>
-
-                    <View style={styles.contentModal}>
-                        <Text style={styles.modalSubTitle}>TIME (MINUTES)</Text>
-                        <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
-                            <View style={styles.modalTimers}>
-                                <Text style={styles.timerTitle}>Pomodoro</Text>
-                                <InputNumber value={String(timerPomodoro)} setValue={setTimerPomodoro} />
-                            </View>
-                            <View style={styles.modalTimers}>
-                                <Text style={styles.timerTitle}>Short Break</Text>
-                                <InputNumber value={String(timerShortBreak)} setValue={setTimerShortBreak} />
-                            </View>
-                            <View style={styles.modalTimers}>
-                                <Text style={styles.timerTitle}>Long Break</Text>
-                                <InputNumber value={String(timerLongBreak)} setValue={setTimerLongBreak} />
+                        <View style={styles.contentTimer}>
+                            <Text style={styles.timer}>
+                                {String(minutes).padStart(2, '0')}:{String(seconds).padStart(2, '0')}
+                            </Text>
+                            <TouchableOpacity
+                                style={[styles.buttonAction, { backgroundColor: state.color_button }]}
+                                onPress={handleStartTimer}
+                            >
+                                <Text
+                                    style={styles.textButtonAction}
+                                >
+                                    {isStarted ? 'STOP' : 'START'}
+                                </Text>
+                            </TouchableOpacity>
+                            <View style={styles.contentInterval}>
+                                <Text style={styles.numberInterval}>{currentInterval} / {intervalApp}</Text>
+                                <Text style={styles.textInterval}>Interval</Text>
                             </View>
                         </View>
-                    </View>
 
-                    <View style={styles.contentModal}>
-                        <Text style={styles.modalSubTitle}>COLORS</Text>
-                        <View style={styles.contentColors}>
-                            <ColorPicker
-                                color={state.color_button}
-                                colorPicker="#F47272"
-                                setColor={setColorConfigApp}
-                            />
-                            <ColorPicker
-                                color={state.color_button}
-                                colorPicker="#DA82F9"
-                                setColor={setColorConfigApp}
-                            />
-                            <ColorPicker
-                                color={state.color_button}
-                                colorPicker="#73F2F7"
-                                setColor={setColorConfigApp}
-                            />
+                        <View style={styles.footer}>
+                            <TouchableOpacity onPress={() => setModalOpen(true)}>
+                                <EvilIcons name="gear" color={"#ffffff"} size={50} />
+                            </TouchableOpacity>
+
+                            <TouchableOpacity onPress={() => setModalRulesApp(true)}>
+                                <Text style={styles.textRules}>RULES</Text>
+                            </TouchableOpacity>
                         </View>
-                        <TouchableOpacity
-                            onPress={handleSaveConfig}
-                            style={[styles.buttonSaveModal,
-                            { backgroundColor: state.color_button }]}
-                        >
-                            <Text style={styles.textButtonSaveModal}>SAVE</Text>
-                        </TouchableOpacity>
-                    </View>
-                </Modal>
 
-                <Modal
-                    setOpenModal={setModalRulesApp}
-                    visible={modalRulesApp}
-                >
-                    <Image
-                        source={require('../../assets/rules-pomodoro.webp')}
-                        style={styles.imageRules}
-                    />
-                </Modal>
+                        <Modal setOpenModal={setModalOpen} visible={modalOpen}>
+                            <Text style={styles.modalTitle}>CONFIGURATIONS</Text>
+
+                            <View style={styles.contentModal}>
+                                <Text style={styles.modalSubTitle}>TIME (MINUTES)</Text>
+                                <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
+                                    <View style={styles.modalTimers}>
+                                        <Text style={styles.timerTitle}>Pomodoro</Text>
+                                        <InputNumber value={String(timerPomodoro)} setValue={setTimerPomodoro} />
+                                    </View>
+                                    <View style={styles.modalTimers}>
+                                        <Text style={styles.timerTitle}>Short Break</Text>
+                                        <InputNumber value={String(timerShortBreak)} setValue={setTimerShortBreak} />
+                                    </View>
+                                    <View style={styles.modalTimers}>
+                                        <Text style={styles.timerTitle}>Long Break</Text>
+                                        <InputNumber value={String(timerLongBreak)} setValue={setTimerLongBreak} />
+                                    </View>
+                                </View>
+                            </View>
+
+                            <View style={styles.contentModal}>
+                                <Text style={styles.modalSubTitle}>COLORS</Text>
+                                <View style={styles.contentColors}>
+                                    <ColorPicker
+                                        color={state.color_button}
+                                        colorPicker="#F47272"
+                                        setColor={setColorConfigApp}
+                                    />
+                                    <ColorPicker
+                                        color={state.color_button}
+                                        colorPicker="#DA82F9"
+                                        setColor={setColorConfigApp}
+                                    />
+                                    <ColorPicker
+                                        color={state.color_button}
+                                        colorPicker="#73F2F7"
+                                        setColor={setColorConfigApp}
+                                    />
+                                </View>
+                                <TouchableOpacity
+                                    onPress={handleSaveConfig}
+                                    style={[styles.buttonSaveModal,
+                                    { backgroundColor: state.color_button }]}
+                                >
+                                    <Text style={styles.textButtonSaveModal}>SAVE</Text>
+                                </TouchableOpacity>
+                            </View>
+                        </Modal>
+
+                        <Modal
+                            setOpenModal={setModalRulesApp}
+                            visible={modalRulesApp}
+                        >
+                            <Image
+                                source={require('../../assets/rules-pomodoro.webp')}
+                                style={styles.imageRules}
+                            />
+                        </Modal>
+                    </>
+                )}
             </View>
         </AlertNotificationRoot>
     )
