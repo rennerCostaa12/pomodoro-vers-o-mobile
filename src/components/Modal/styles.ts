@@ -10,7 +10,7 @@ export const styles = StyleSheet.create({
     content: {
         backgroundColor: '#ffffff',
         width: 380,
-        height: 350,
+        height: 380,
         borderRadius: 5,
         alignItems: 'center'
     },

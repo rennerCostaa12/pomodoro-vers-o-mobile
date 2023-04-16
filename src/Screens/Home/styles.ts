@@ -96,6 +96,18 @@ export const styles = StyleSheet.create({
     timerTitle: {
         fontSize: 16,
     },
+    buttonSaveModal: {
+        backgroundColor: 'red',
+        padding: 10,
+        borderRadius: 5,
+        marginTop: 20
+    },
+    textButtonSaveModal: {
+        textAlign: 'center',
+        fontSize: 20,
+        color: '#ffffff',
+        fontWeight: 'bold'
+    },
     textRules: {
         color: 'gray',
         fontSize: 25,
