@@ -1,7 +1,10 @@
-import { View, Text, TouchableOpacity, Image } from "react-native";
+import { View, Text, TouchableOpacity, Image, TextInput, FlatList, ScrollView, SafeAreaView } from "react-native";
 import { Audio } from 'expo-av';
 import { EvilIcons } from '@expo/vector-icons';
+import uuid from 'react-native-uuid';
 import { useState, useEffect } from 'react';
+
+import Ionicons from '@expo/vector-icons/Ionicons';
 
 import { Toast, ALERT_TYPE, AlertNotificationRoot } from "react-native-alert-notification";
 
@@ -15,10 +18,18 @@ import { TypesActionsProps, ConfigAppDefaultProps } from "../../contexts/ConfigA
 
 import { styles } from "./styles";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import CardTask from "../../components/CardTask";
 
 interface ModesTimerProps {
     timer: number;
     title: string;
+}
+
+export interface TaskProps {
+    id: string | number[];
+    name: string,
+    quantityPomodoros: number,
+    quantityInital: number,
 }
 
 let intervalApp = 4;
@@ -30,8 +41,18 @@ export default function Home() {
     const [colorConfigApp, setColorConfigApp] = useState<string>('#F47272');
     const [modesTimer, setModesTimer] = useState<ModesTimerProps>(state.pomodoro);
     const [isStarted, setIsStarted] = useState<boolean>(false);
+
     const [modalOpen, setModalOpen] = useState<boolean>(false);
     const [modalRulesApp, setModalRulesApp] = useState<boolean>(false);
+    const [modalAddTask, setModalAddTask] = useState<boolean>(false);
+
+    const [datasTaskModal, setDatasTaskModal] = useState<TaskProps>();
+
+    const [listTask, setListTask] = useState<TaskProps[]>([]);
+
+    const [nameTask, setNameTask] = useState<string>('');
+    const [quantityPomodoros, setQuantityPomodoros] = useState<number>(1);
+    const [taskSelected, setTaskSelected] = useState<string | number[]>('');
 
     const [loading, setLoading] = useState<boolean>(false);
 
@@ -47,10 +68,106 @@ export default function Home() {
     }
 
     const handleStartTimer = () => {
-        if (!isStarted) {
+        if(!isStarted) {
             setIsStarted(true);
         } else {
             setIsStarted(false);
+        }
+    }
+
+    const saveTasksStorage = async (listTask: TaskProps[]) => {
+        setLoading(true);
+        try{
+            await AsyncStorage.setItem('@appPomodoro:listTasks', JSON.stringify(listTask));
+        }catch(error){
+            console.log(error);
+        }
+        setLoading(false);
+    }
+
+    const handleCreateTask = () => {
+        if(!nameTask || !quantityPomodoros){
+            Toast.show({
+                type: ALERT_TYPE.WARNING,
+                title: 'Fill in the fields to create the task',
+                textBody: '',
+            })
+
+            return;
+        }
+
+        const taskObject = {
+            id: uuid.v4(),
+            name: nameTask,
+            quantityPomodoros: quantityPomodoros,
+            quantityInital: 0
+        }
+
+        setListTask(currentList => [...currentList, taskObject]);
+
+        setNameTask('');
+        setQuantityPomodoros(1);
+        setModalAddTask(false);
+
+        Toast.show({
+            type: ALERT_TYPE.SUCCESS,
+            title: 'Task added successfully',
+            textBody: '',
+        });
+    }
+
+    const handleEditTask = () => {
+        if(!nameTask || !quantityPomodoros){
+            Toast.show({
+                type: ALERT_TYPE.WARNING,
+                title: 'Fill in the fields to edit the task',
+                textBody: '',
+            });
+            
+            return;
+        }
+
+        setListTask(currentList => currentList.map(value => {
+            if(value.id === datasTaskModal?.id){
+                return {...value, name: nameTask, quantityPomodoros: quantityPomodoros};
+            }
+
+            return value;
+        }))
+        
+        setNameTask('');
+        setQuantityPomodoros(1);
+        setModalAddTask(false);
+        setDatasTaskModal(undefined);
+
+        Toast.show({
+            type: ALERT_TYPE.SUCCESS,
+            title: 'Successfully edited task',
+            textBody: '',
+        });
+    }
+
+    const handleDeleteTask = (id: string | number[]) => {
+        if(Object.keys(listTask).length > 1){
+            setListTask(listTask.filter((data) => data.id !== id));
+            setModalAddTask(false);
+    
+            Toast.show({
+                type: ALERT_TYPE.SUCCESS,
+                title: 'Task deleted successfully',
+                textBody: '',
+            });
+        }else{
+            setListTask(listTask.filter((data) => data.id !== id));
+            setModalAddTask(false);
+    
+            Toast.show({
+                type: ALERT_TYPE.SUCCESS,
+                title: 'Task deleted successfully',
+                textBody: '',
+            });
+
+            saveTasksStorage([]);
         }
     }
 
@@ -82,10 +199,11 @@ export default function Home() {
                 title: 'Settings saved successfully',
                 textBody: '',
             })
+            setModalOpen(false);
         }catch(error){
             console.log(error);
             Toast.show({
-                type: ALERT_TYPE.WARNING,
+                type: ALERT_TYPE.DANGER,
                 title: 'Error saving settings',
                 textBody: '',
             })
@@ -94,7 +212,11 @@ export default function Home() {
 
     const handleSetModeTime = (timerSelected: ModesTimerProps) => {
         if (isStarted) {
-            alert('Não é possível alterar o cronometro com tempo em andamento');
+            Toast.show({
+                type: ALERT_TYPE.WARNING,
+                title: 'Unable to change stopwatch with running time',
+                textBody: '',
+            });
         } else {
             setModesTimer(timerSelected);
         }
@@ -102,7 +224,6 @@ export default function Home() {
 
     useEffect(() => {
         if (modesTimer.timer === 0 && modesTimer.title === 'LONG BREAK') {
-            playSound();
             setCurrentIntervalApp(0);
             setIsStarted(false);
             setModesTimer(state.pomodoro);
@@ -110,7 +231,6 @@ export default function Home() {
         }
 
         if (modesTimer.timer === 0 && modesTimer.title === 'SHORT BREAK') {
-            playSound();
             setIsStarted(false);
             setModesTimer(state.pomodoro);
             return;
@@ -121,6 +241,15 @@ export default function Home() {
             setIsStarted(false);
             setModesTimer(state.short_break);
             setCurrentIntervalApp((currentValue) => currentValue + 1);
+
+            setListTask(currentList => currentList.map(value => {
+                if(value.id === taskSelected){
+                    return {...value, quantityInital: value.quantityInital + 1};
+                }
+    
+                return value;
+            }))
+
             return;
         }
 
@@ -141,6 +270,20 @@ export default function Home() {
             setModesTimer(state.long_break);
         }
     }, [currentInterval]);
+
+    useEffect(() => {
+        if(datasTaskModal){
+            setNameTask(datasTaskModal.name);
+            setQuantityPomodoros(datasTaskModal.quantityPomodoros);
+        }
+
+        if(!modalAddTask){
+            setDatasTaskModal(undefined);
+            setNameTask('');
+            setQuantityPomodoros(1);
+        }
+
+    }, [datasTaskModal, modalAddTask]);
 
     useEffect(() => {
         const getConfigApp = async () => {
@@ -183,6 +326,29 @@ export default function Home() {
         }
 
         getConfigApp();
+    }, []);
+
+    useEffect(() => {
+        if(Object.keys(listTask).length > 0){
+            saveTasksStorage(listTask);
+        }
+    }, [listTask]);
+
+    useEffect(() => {
+        const getTasksStorage = async () => {
+            setLoading(true);
+            try{
+                const responseListTasks = await AsyncStorage.getItem('@appPomodoro:listTasks');
+                if(responseListTasks){
+                    setListTask(JSON.parse(responseListTasks));
+                }
+            }catch(error){
+                console.log(error);
+            }
+            setLoading(false);
+        }
+
+        getTasksStorage();
     }, []);
 
     const minutes = Math.floor(modesTimer.timer / 60);
@@ -263,9 +429,19 @@ export default function Home() {
                                 </Text>
                             </TouchableOpacity>
                             <View style={styles.contentInterval}>
-                                <Text style={styles.numberInterval}>{currentInterval} / {intervalApp}</Text>
-                                <Text style={styles.textInterval}>Interval</Text>
+                                <TouchableOpacity onPress={() => setModalAddTask(true)}>
+                                    <Ionicons name="add-outline" size={24} color="#ffffff" />
+                                </TouchableOpacity>
                             </View>
+                            {listTask.length > 0 && (
+                                <SafeAreaView style={styles.contentTasks}>
+                                    <FlatList
+                                        data={listTask}
+                                        renderItem={({ item }) => <CardTask setDatasTaskModal={setDatasTaskModal} setModalAddTask={setModalAddTask} taskId={taskSelected} setTaskId={setTaskSelected} key={item.id as any}  data={item}/>}
+                                        keyExtractor={item => item.id as any}
+                                    />
+                                </SafeAreaView>
+                            )}
                         </View>
 
                         <View style={styles.footer}>
@@ -277,6 +453,55 @@ export default function Home() {
                                 <Text style={styles.textRules}>RULES</Text>
                             </TouchableOpacity>
                         </View>
+                        
+                        <Modal titleModal={datasTaskModal ? "EDIT TASK" : "ADD TASK"} setOpenModal={setModalAddTask} visible={modalAddTask}>
+                            <View style={styles.contentModalAddTask}>
+                                <TextInput 
+                                    onChangeText={setNameTask}
+                                    value={nameTask}
+                                    style={styles.textInputAddTask}
+                                    placeholder="What are you working on?"
+                                />
+
+                                <Text style={styles.textQuantityPomodoro}>Quantity Pomodoros</Text>
+                                <View style={styles.contentQuantityPomodoro}>
+                                    <TouchableOpacity
+                                        onPress={() => setQuantityPomodoros(Number(quantityPomodoros) - 1)}
+                                    >
+                                        <Ionicons name="remove" size={30} color="black" />
+                                    </TouchableOpacity>
+                                    <InputNumber 
+                                        setValue={setQuantityPomodoros} 
+                                        value={String(quantityPomodoros)}
+                                    />
+                                    <TouchableOpacity 
+                                        onPress={() => setQuantityPomodoros(Number(quantityPomodoros) + 1)}
+                                    >
+                                        <Ionicons name="add" size={30} color="black" />
+                                    </TouchableOpacity>
+                                </View>
+
+                                <View style={styles.contentButtonModalTask}>
+                                    {datasTaskModal && (
+                                        <TouchableOpacity
+                                            style={styles.buttonDeleteTask}
+                                            onPress={() => handleDeleteTask(datasTaskModal?.id as any)}
+                                        >
+                                            <Text style={styles.textButtonModalTask}>DELETE</Text>
+                                        </TouchableOpacity>
+                                    )}
+
+                                    <TouchableOpacity 
+                                        onPress={() => datasTaskModal ? handleEditTask() : handleCreateTask()}
+                                        style={[styles.buttonModalTask, { backgroundColor: state.color_button }]}
+                                    >
+                                        <Text style={styles.textButtonModalTask}>
+                                            {datasTaskModal ? 'EDIT' : 'SAVE'}
+                                        </Text>
+                                    </TouchableOpacity>
+                                </View>
+                            </View>
+                        </Modal>
 
                         <Modal setOpenModal={setModalOpen} visible={modalOpen}>
                             <Text style={styles.modalTitle}>CONFIGURATIONS</Text>
@@ -329,6 +554,7 @@ export default function Home() {
                         </Modal>
 
                         <Modal
+                            titleModal="APP RULES"
                             setOpenModal={setModalRulesApp}
                             visible={modalRulesApp}
                         >

@@ -25,8 +25,8 @@ export const styles = StyleSheet.create({
         color: '#ffffff'
     },
     contentTimer: {
+        height: 500,
         alignItems: 'center',
-        justifyContent: 'center'
     },
     timer: {
         fontSize: 100,
@@ -50,24 +50,85 @@ export const styles = StyleSheet.create({
     },
     contentInterval: {
         alignItems: 'center',
-        marginTop: 10
+        marginTop: 10,
+        borderWidth: 1,
+        borderColor: '#d6d6d6c0',
+        borderRadius: 5,
+        padding: 5,
     },
-    textInterval: {
+    contentModalAddTask: {
+        flex: 1,
+        alignItems: 'center',
+    },
+    textInputAddTask: {
+        borderWidth: 1,
         fontSize: 25,
-        fontWeight: 'bold',
-        color: '#ffffff',
-        textAlign: 'center'
+        padding: 10,
+        borderRadius: 5,
+        margin: 10
     },
-    numberInterval: {
+    contentQuantityPomodoro: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 20
+    },
+    textQuantityPomodoro: {
         fontSize: 20,
-        fontWeight: '500',
-        color: '#ffffff'
+        margin: 15
+    },
+    contentTasks: {
+        width: 350,
+        height: 165,
+        borderWidth: 1,
+        borderColor: '#ffffff',
+        marginTop: 15,
+        marginBottom: 10,
+        borderRadius: 5,
+        padding: 10,
+    },
+    contentButtonModalTask: {
+        position: 'absolute',
+        flexDirection: 'row',
+        justifyContent: 'center',
+        bottom: 0
+    },
+    buttonModalTask: {
+        marginBottom: -15,
+        width: 150,
+        padding: 10,
+        borderRadius: 5,
+        marginTop: 20
+    },
+    textButtonModalTask: {
+        textAlign: 'center',
+        fontSize: 20,
+        color: '#ffffff',
+        fontWeight: 'bold'
+    },
+    buttonDeleteTask: {
+        marginBottom: -15,
+        width: 150,
+        padding: 10,
+        borderRadius: 5,
+        marginTop: 20,
+        backgroundColor: '#DC143C',
+        marginRight: 10
     },
     footer: {
         position: 'absolute',
         bottom: 0,
-        margin: 30,
+        margin: 20,
         alignItems: 'center'
+    },
+    textRules: {
+        color: 'gray',
+        fontSize: 25,
+        marginTop: 10,
+    },
+    imageRules:{
+        width: '100%',
+        height: 200,
+        marginTop: 20
     },
     modalTitle: {
         fontSize: 25,
@@ -97,7 +158,6 @@ export const styles = StyleSheet.create({
         fontSize: 16,
     },
     buttonSaveModal: {
-        backgroundColor: 'red',
         padding: 10,
         borderRadius: 5,
         marginTop: 20
@@ -107,15 +167,5 @@ export const styles = StyleSheet.create({
         fontSize: 20,
         color: '#ffffff',
         fontWeight: 'bold'
-    },
-    textRules: {
-        color: 'gray',
-        fontSize: 25,
-        marginTop: 20,
-    },
-    imageRules:{
-        width: '100%',
-        height: 200,
-        marginTop: 20
     }
 })
